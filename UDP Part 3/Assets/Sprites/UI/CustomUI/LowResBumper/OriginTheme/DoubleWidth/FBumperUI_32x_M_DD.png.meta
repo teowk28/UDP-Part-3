@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 92d29c69b591e9944a216cd42848ceb2
+guid: 15a605f5af30b654aadcb4e02ede54ad
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1511904700812693520
-    second: DPad5 4_0
+      213: -2352697640177774492
+    second: FBumperUI_32x_M_DD_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: DPad5 4_0
+      name: FBumperUI_32x_M_DD_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 64
-        height: 64
+        width: 32
+        height: 32
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0101f22a05d5bf410800000000000000
-      internalID: 1511904700812693520
+      spriteID: 460dd4d16f9895fd0800000000000000
+      internalID: -2352697640177774492
       vertices: []
       indices: 
       edges: []
@@ -134,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      DPad5 4_0: 1511904700812693520
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

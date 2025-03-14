@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 92d29c69b591e9944a216cd42848ceb2
+guid: d5197fb5f2521ed4aaa8b61d9205cbbc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1511904700812693520
-    second: DPad5 4_0
+      213: 2373419291565303245
+    second: BumperUICorner_R_Split_DarkCenter_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,12 +100,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: DPad5 4_0
+      name: BumperUICorner_R_Split_DarkCenter_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 64
+        width: 96
         height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0101f22a05d5bf410800000000000000
-      internalID: 1511904700812693520
+      spriteID: dc52fc0554410f020800000000000000
+      internalID: 2373419291565303245
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      DPad5 4_0: 1511904700812693520
+      BumperUICorner_R_Split_DarkCenter_0: 2373419291565303245
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

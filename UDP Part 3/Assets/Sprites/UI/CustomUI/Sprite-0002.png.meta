@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 92d29c69b591e9944a216cd42848ceb2
+guid: 72fe7fcfab142764480304e28bb4dd9a
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1511904700812693520
-    second: DPad5 4_0
+      213: 7145198348311737387
+    second: Sprite-0002_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: DPad5 4_0
+      name: Sprite-0002_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0101f22a05d5bf410800000000000000
-      internalID: 1511904700812693520
+      spriteID: b2434d87a08d82360800000000000000
+      internalID: 7145198348311737387
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      DPad5 4_0: 1511904700812693520
+      Sprite-0002_0: 7145198348311737387
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

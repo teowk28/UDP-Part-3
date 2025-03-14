@@ -34,6 +34,7 @@ public class ShopUIManager : MonoBehaviour
     private Label itemNameText;
     private Label itemCostText;
     private Label usableByText;
+    private Label itemDescText;
     private Label ownededText;
     private Label ownedQuantityText;
     private Label goldText;
@@ -112,6 +113,7 @@ public class ShopUIManager : MonoBehaviour
         itemNameText = buyMenu?.Q<Label>("EquipmentNameText");
         itemCostText = buyMenu?.Q<Label>("EquipmentCost");
         usableByText = buyMenu?.Q<Label>("UableByText");
+        itemDescText = buyMenu?.Q<Label>("DescText");
         ownededText = buyMenu?.Q<Label>("OwnedText");
         ownedQuantityText = buyMenu?.Q<Label>("OwnedQuantity");
         goldText = buyMenu?.Q<Label>("GoldText"); 
@@ -650,20 +652,21 @@ public class ShopUIManager : MonoBehaviour
             ForceElementVisibility(applicableContainer, true);
 
         // Update the usable by / effect text
-        if (usableByText != null)
+        if (itemDescText != null && usableByText != null)
         {
-            ForceElementVisibility(usableByText, true); 
-
             if (isRegularItem)
             {
+                ForceElementVisibility(itemDescText, true);
+                ForceElementVisibility(usableByText, false);
                 // For regular items, show the effect
                 string effectText = GetItemEffect(item.name);
-                usableByText.text = $"Effect:\n{effectText}";
+                itemDescText.text = $"Effect:\n{effectText}";
             }
             else
             {
                 // For equipment, show usable characters
-                usableByText.text = $"Usable\nBy:";
+                ForceElementVisibility(itemDescText, false);
+                ForceElementVisibility(usableByText, true);
             }
         }
 

@@ -210,7 +210,7 @@ public class InteractionUIManager : MonoBehaviour
 
         VisualElement confirmButton = confirmCancelPanel.Q("ConfirmButton");
         VisualElement cancelButton = confirmCancelPanel.Q("CancelButton");
-        VisualElement qButtonUI = confirmCancelPanel.Q("QButtonUI");
+        //VisualElement qButtonUI = confirmCancelPanel.Q("QButtonUI");
         Label confirmTextLabel = confirmButton?.Q<Label>("ConfirmText");
         Label cancelTextLabel = cancelButton?.Q<Label>("CancelText");
 
@@ -223,9 +223,9 @@ public class InteractionUIManager : MonoBehaviour
         if (cancelButton != null)
         {
             ForceElementVisibility(cancelButton, showCancelButton);
-            ForceElementVisibility(qButtonUI, showCancelButton);
+            //ForceElementVisibility(qButtonUI, showCancelButton);
             cancelButton.SetEnabled(showCancelButton);
-            qButtonUI.SetEnabled(showCancelButton);
+            //qButtonUI.SetEnabled(showCancelButton);
         }
     }
 
