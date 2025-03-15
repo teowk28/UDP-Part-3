@@ -56,6 +56,9 @@ public class EquipmentManager : MonoBehaviour
     [SerializeField] private List<EquipmentItem> equipmentItems = new List<EquipmentItem>();
     [SerializeField] private List<EquipmentItem> regularItems = new List<EquipmentItem>();
 
+    [SerializeField] private List<Sprite> equipmentItemsIcons = new List<Sprite>();
+    [SerializeField] private List<Sprite> regularItemsIcons = new List<Sprite>();
+
     private int playerGold = 10000; // Starting gold
 
     public List<EquipmentItem> GetEquipmentItems() => equipmentItems;
@@ -94,6 +97,17 @@ public class EquipmentManager : MonoBehaviour
         foreach (var item in equipmentItems.Concat(regularItems))
         {
             item.usableBy = item.GetUsabilityString();
+        }
+
+        //set icon to preset constructor stuff cus why wasn't the equipment done in editor :'(
+        for (int i = 0; i < equipmentItems.Count; ++i) {
+            if(i < equipmentItemsIcons.Count)
+                equipmentItems[i].icon = equipmentItemsIcons[i];
+        }
+        
+        for (int i = 0; i < regularItems.Count; ++i) {
+            if(i < regularItemsIcons.Count)
+                regularItems[i].icon = regularItemsIcons[i];
         }
     }
 

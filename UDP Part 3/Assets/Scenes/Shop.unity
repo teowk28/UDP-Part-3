@@ -802,7 +802,9 @@ MonoBehaviour:
   uiDocument: {fileID: 2004644650}
   circleCenter: {x: 400, y: 320}
   horizontalRadius: 200
-  verticalRadius: 90
+  verticalRadius: 70
+  selectedSizeFactor: 2
+  nonSelectedSizeFactor: 1.5
 --- !u!4 &795007659
 Transform:
   m_ObjectHideFlags: 0
@@ -1300,6 +1302,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   equipmentItems: []
   regularItems: []
+  equipmentItemsIcons:
+  - {fileID: -3658026335508257356, guid: b04b5033eb6c46844a9f3ef5ebb43ae8, type: 3}
+  - {fileID: -3467833347636268495, guid: 5b3f69c5ab2e5914eb1ed6b35f756af6, type: 3}
+  - {fileID: -5756074701952799403, guid: 83bff5ab69c1af24eb9c6ab0368670c3, type: 3}
+  - {fileID: -3948410609398390494, guid: b440824c7a894e04b8ef8308bd7390e4, type: 3}
+  - {fileID: 760047752443946244, guid: 6d6824c7ec7de3d4b9e152fb4a0bd2f1, type: 3}
+  - {fileID: -1094914071474481616, guid: 7f3beab237c1ad547b3789368d7541eb, type: 3}
+  - {fileID: -1260109836392420980, guid: 978ef941d3d77b7468e364b0a85cb034, type: 3}
+  - {fileID: -4218646166373211166, guid: 0f393a22f31512d40ba92805b308355e, type: 3}
+  - {fileID: 2579901178524617473, guid: 1310226c794888041b76d38d5a7cadbc, type: 3}
+  - {fileID: -7315889964331276839, guid: 6845b618e2bf95a4c8518747f0e6c200, type: 3}
+  - {fileID: -7085641726715658243, guid: e9e76d15b5241044e83582c374d5d54e, type: 3}
+  - {fileID: 2503664914330895939, guid: c95514411b8f56c45b7e95e726394c68, type: 3}
+  regularItemsIcons:
+  - {fileID: 21300000, guid: 6c986895e94c83843a18d92b4cb80d21, type: 3}
+  - {fileID: 21300000, guid: f8ba6fdbff5aac0488885891d43ffa44, type: 3}
+  - {fileID: 21300000, guid: 26233f9f0f795bf48997f0df31a3c0b2, type: 3}
+  - {fileID: 21300000, guid: 4e008b6906974784bbfa80cd9ab6e7ea, type: 3}
+  - {fileID: 21300000, guid: 8558cce50d322b4468d35e44c1567074, type: 3}
+  - {fileID: 21300000, guid: 1fe7b5db2b0217a4c8f21a3e4cc7a5b7, type: 3}
+  - {fileID: 21300000, guid: bf03bb6b7c79c71489224029424a39b1, type: 3}
+  - {fileID: 21300000, guid: 6f32da2978ce37e408b181d424e052d9, type: 3}
+  - {fileID: 21300000, guid: 212511b0e86dede45a3d80b9e72418ea, type: 3}
+  - {fileID: 21300000, guid: 8c09ad577b2d5f44e94c9d6e6947b355, type: 3}
+  - {fileID: 21300000, guid: 1bf78e7f8668af646b8e93c7ae5ce7fc, type: 3}
 --- !u!4 &1980316339
 Transform:
   m_ObjectHideFlags: 0

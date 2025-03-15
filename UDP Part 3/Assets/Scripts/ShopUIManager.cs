@@ -14,6 +14,8 @@ public class ShopUIManager : MonoBehaviour
     [SerializeField] private Vector2 circleCenter = new Vector2(400, 400);
     [SerializeField] private float horizontalRadius = 220f; // Width of the oval
     [SerializeField] private float verticalRadius = 120f;   // Height of the oval
+    [SerializeField] private float selectedSizeFactor = 2;      //1.5 for solomon's original value, 2 for udp II original value.
+    [SerializeField] private float nonSelectedSizeFactor = 1;   //1 for solomon's original value, 1.5 for udp II original value.
 
     // UI elements
     private VisualElement root;
@@ -23,6 +25,8 @@ public class ShopUIManager : MonoBehaviour
     private VisualElement selectionBox;
     private VisualElement whatWillYouBuyBox;
     private VisualElement inventory;
+    private VisualElement equipmentfolder;
+    private VisualElement itemfolder;
 
     // Character Usability Icons Container
     private VisualElement applicableContainer;
@@ -108,6 +112,9 @@ public class ShopUIManager : MonoBehaviour
         randiIcon = applicableContainer.Q("RandiIcon");
         popoiIcon = applicableContainer.Q("PopoiIcon");
         purimIcon = applicableContainer.Q("PurimIcon");
+
+        equipmentfolder = buyMenu?.Q("EquipIcons");
+        itemfolder = buyMenu?.Q("ItemIcons");
 
         // Get text elements
         itemNameText = buyMenu?.Q<Label>("EquipmentNameText");
@@ -526,6 +533,7 @@ public class ShopUIManager : MonoBehaviour
         for (int i = 0; i < activeItemUIElements.Count && i < currentItems.Count; i++)
         {
             int positionIndex = (i - selectedItemIndex + circularPositions.Count) % circularPositions.Count;
+            EquipmentItem currentItem = currentItems[i];
             Vector2 position = circularPositions[positionIndex];
             VisualElement itemElement = activeItemUIElements[i];
 
@@ -534,9 +542,24 @@ public class ShopUIManager : MonoBehaviour
             ForceElementVisibility(itemElement, true);
 
             // Set size based on selection state
-            float size = isSelected ? 96 : 64;
-            itemElement.style.width = size;
-            itemElement.style.height = size;
+            //float size = isSelected ? 96 : 64;
+            //itemElement.style.width = size;
+            //itemElement.style.height = size;
+
+            // Set size based on selection state
+            float size = isSelected ? selectedSizeFactor : nonSelectedSizeFactor;
+            itemElement.style.width = currentItem.icon.texture.width * size;
+            itemElement.style.height = currentItem.icon.texture.height * size;
+            itemElement.style.backgroundSize =
+                new BackgroundSize(itemElement.style.width.value.value,
+                                    itemElement.style.height.value.value);
+
+            //reset size to larger of element dimensions
+            size = (itemElement.style.width.value.value < itemElement.style.height.value.value) 
+                ? itemElement.style.width.value.value 
+                : itemElement.style.height.value.value;
+
+            //size = isSelected ? 96 : 64;
 
             // Apply tint based on selection state
             itemElement.style.unityBackgroundImageTintColor = isSelected ? normalTint : nonSelectedTint;
@@ -545,7 +568,28 @@ public class ShopUIManager : MonoBehaviour
             itemElement.style.position = Position.Absolute;
             itemElement.style.left = position.x - size / 2;
             itemElement.style.top = position.y - size / 2;
+
+            size = isSelected ? selectedSizeFactor : nonSelectedSizeFactor;
+            itemElement.style.width = currentItem.icon.texture.width * size;
+            itemElement.style.height = currentItem.icon.texture.height * size;
+            itemElement.style.backgroundSize =
+                new BackgroundSize(itemElement.style.width.value.value,
+                                    itemElement.style.height.value.value);
+
         }
+
+        //update layering
+        IntLayerComparer comparer = new IntLayerComparer();
+        comparer.reference = new List<VisualElement>(activeItemUIElements);
+        List<int> layerOrder = new List<int>(Enumerable.Range(0, activeItemUIElements.Count));
+        layerOrder.Sort(comparer);
+        foreach (int i in layerOrder)
+        {
+            activeItemUIElements[i].BringToFront();
+        }
+        activeItemUIElements[selectedItemIndex].BringToFront(); //bring selected item to be infront of other items.
+
+
 
         if (selectionBox != null)
         {
@@ -664,6 +708,7 @@ public class ShopUIManager : MonoBehaviour
             }
             else
             {
+                usableByText.text = $"Usable\nBy:";
                 // For equipment, show usable characters
                 ForceElementVisibility(itemDescText, false);
                 ForceElementVisibility(usableByText, true);
@@ -934,7 +979,7 @@ public class ShopUIManager : MonoBehaviour
                     // No more items to sell in this category
                     if (whatWillYouBuyText != null)
                     {
-                        whatWillYouBuyText.text = isEquipmentTabSelected ? "No equipment\nto sell!" : "No items\nto sell!";
+                        whatWillYouBuyText.text = isEquipmentTabSelected ? "You have no equipments to sell!" : "You have no items to sell!";
                     }
 
                     // Hide item details UI
@@ -1136,12 +1181,17 @@ public class ShopUIManager : MonoBehaviour
                 {
                     // For regular items, show the effect description
                     string effectText = GetItemEffect(currentSelectedItem.name);
-                    usableByText.text = $"Effect:\n{effectText}";
+                    if(itemDescText != null)
+                        itemDescText.text = $"Effect:\n{effectText}";
+                    // For equipment, show usable characters
+                    ForceElementVisibility(itemDescText, true);
+                    ForceElementVisibility(usableByText, false);
                 }
                 else
                 {
                     // For equipment, show usable characters as before
-                    usableByText.text = $"Usable\nBy:";
+                    ForceElementVisibility(itemDescText, false);
+                    ForceElementVisibility(usableByText, true);
                 }
             }
 
@@ -1210,7 +1260,7 @@ public class ShopUIManager : MonoBehaviour
 
         // Set up the UI text
         if (whatWillYouBuyText != null)
-            whatWillYouBuyText.text = "What'll you be\nselling?";
+            whatWillYouBuyText.text = "What'll you be selling?";
 
         // Update gold display
         UpdateGoldDisplay(goldAmount);
@@ -1230,7 +1280,7 @@ public class ShopUIManager : MonoBehaviour
         if (currentItems == null || currentItems.Count == 0)
         {
             // No items to sell
-            whatWillYouBuyText.text = isEquipmentTabSelected ? "No equipment\nto sell!" : "No items\nto sell!";
+            whatWillYouBuyText.text = isEquipmentTabSelected ? "You have no equipments to sell!" : "You have no items to sell!";
 
             HideItemDetailsUI();
             if (selectionBox != null)
@@ -1268,7 +1318,7 @@ public class ShopUIManager : MonoBehaviour
             selectedItemIndex = 0;
 
             if (whatWillYouBuyText != null)
-                whatWillYouBuyText.text = "What'll you be\nselling?";
+                whatWillYouBuyText.text = "What'll you be selling?";
 
             // Update the circular display with owned items
             UpdateCircularSellDisplay();
@@ -1283,7 +1333,7 @@ public class ShopUIManager : MonoBehaviour
                 ForceElementVisibility(selectionBox, false);
 
             HideItemDetailsUI();
-            whatWillYouBuyText.text = "No equipment\nto sell!";
+            whatWillYouBuyText.text = "You have no equipments to sell!";
         }
     }
 
@@ -1304,7 +1354,7 @@ public class ShopUIManager : MonoBehaviour
             selectedItemIndex = 0;
 
             if (whatWillYouBuyText != null)
-                whatWillYouBuyText.text = "What'll you be\nselling?";
+                whatWillYouBuyText.text = "What'll you be selling?";
 
             // Update the circular display with owned items
             UpdateCircularSellDisplay();
@@ -1319,7 +1369,7 @@ public class ShopUIManager : MonoBehaviour
                 ForceElementVisibility(selectionBox, false);
 
             HideItemDetailsUI();
-            whatWillYouBuyText.text = "No items\nto sell!";
+            whatWillYouBuyText.text = "You have no items to sell!";
         }
     }
 
@@ -1347,6 +1397,9 @@ public class ShopUIManager : MonoBehaviour
         List<VisualElement> sourceCollection = isEquipmentTabSelected ?
             equipmentUIElements : regularItemUIElements;
 
+        VisualElement parentFolder = isEquipmentTabSelected ?
+            equipmentfolder : itemfolder;
+
         // Create a list to hold elements that match our owned items
         List<VisualElement> itemElementsToShow = new List<VisualElement>();
 
@@ -1363,6 +1416,8 @@ public class ShopUIManager : MonoBehaviour
                 if (element.name.Contains(normalizedItemName))
                 {
                     matchingElement = element;
+                    matchingElement.style.width = item.icon.texture.width;
+                    matchingElement.style.height = item.icon.texture.height;
                     break;
                 }
             }
@@ -1405,9 +1460,16 @@ public class ShopUIManager : MonoBehaviour
             ForceElementVisibility(element, true);
 
             // Set size based on selection state
-            float size = isSelected ? 96 : 64;
-            element.style.width = size;
-            element.style.height = size;
+            float size = isSelected ? selectedSizeFactor : nonSelectedSizeFactor;
+            element.style.width = element.style.width.value.value * size;
+            element.style.height = element.style.height.value.value * size;
+
+            element.style.backgroundSize =
+                new BackgroundSize(element.style.width.value.value,
+                                    element.style.height.value.value);
+
+            //reset size to larger of element dimensions
+            size = (element.style.width.value.value > element.style.height.value.value) ? element.style.width.value.value : element.style.height.value.value;
 
             // Apply tint based on selection
             element.style.unityBackgroundImageTintColor = isSelected ? normalTint : nonSelectedTint;
@@ -1417,6 +1479,17 @@ public class ShopUIManager : MonoBehaviour
             element.style.left = position.x - size / 2;
             element.style.top = position.y - size / 2;
         }
+
+        //update layering
+        IntLayerComparer comparer = new IntLayerComparer();
+        comparer.reference = new List<VisualElement>(activeItemUIElements);
+        List<int> layerOrder = new List<int>(Enumerable.Range(0, activeItemUIElements.Count));
+        layerOrder.Sort(comparer);
+        foreach (int i in layerOrder)
+        {
+            activeItemUIElements[i].BringToFront();
+        }
+        activeItemUIElements[selectedItemIndex].BringToFront(); //bring selected item to be infront of other items.
 
         // Update selection box visibility
         if (selectionBox != null)
