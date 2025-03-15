@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      FBumperUI_32x_L_DD_0: 8360199901735520855
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

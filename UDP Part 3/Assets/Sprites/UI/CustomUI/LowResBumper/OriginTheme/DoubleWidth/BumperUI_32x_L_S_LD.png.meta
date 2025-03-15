@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      BumperUI_32x_L_S_LD_0: -7178870899775993550
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

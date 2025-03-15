@@ -65,6 +65,15 @@ public class EquipmentManager : MonoBehaviour
     public List<EquipmentItem> GetRegularItems() => regularItems;
     public int GetPlayerGold() => playerGold;
 
+    public List<EquipmentItem> GetBuyableEquipmentItems()
+    {
+        return equipmentItems.Where(item => item.cost > 0).ToList();
+    }
+
+    public List<EquipmentItem> GetBuyableRegularItems()
+    {
+        return regularItems.Where(item => item.cost > 0).ToList();
+    }
     private void InitializeSampleData()
     {
         equipmentItems.Clear();

@@ -221,63 +221,78 @@ public class ShopUIManager : MonoBehaviour
         while (true)
         {
             if (selectionBox != null && selectionBox.visible && selectedItemIndex >= 0 &&
-                activeItemUIElements != null && selectedItemIndex < activeItemUIElements.Count)
+                activeItemUIElements != null && currentItems != null &&
+                selectedItemIndex < currentItems.Count)
             {
-                VisualElement selectedElement = activeItemUIElements[selectedItemIndex];
+                // Find the UI element that corresponds to the selected item
+                VisualElement selectedElement = null;
+                string normalizedItemName = currentItems[selectedItemIndex].name.Replace(" ", "");
 
-                float selectedItemWidth = selectedElement.resolvedStyle.width;
-                float selectedItemHeight = selectedElement.resolvedStyle.height;
-
-                float margin = 14f;
-
-                float extraSpace = 25f;
-                float selectionBoxWidth = selectedItemWidth + (margin * 2) + extraSpace;
-                float selectionBoxHeight = selectedItemHeight + (margin * 2) + extraSpace;
-
-                selectionBox.style.position = Position.Absolute;
-                selectionBox.style.width = selectionBoxWidth;
-                selectionBox.style.height = selectionBoxHeight;
-                selectionBox.style.left = fixedPosition.x - (selectionBoxWidth / 2);
-                selectionBox.style.top = fixedPosition.y - (selectionBoxHeight / 2);
-
-                selectionBox.style.transformOrigin = new TransformOrigin(Length.Percent(50), Length.Percent(50), 0);
-
-                selectionBox.style.backgroundColor = new Color(0, 0, 0, 0);
-                selectionBox.style.borderLeftWidth = 0;
-                selectionBox.style.borderRightWidth = 0;
-                selectionBox.style.borderTopWidth = 0;
-                selectionBox.style.borderBottomWidth = 0;
-
-                animationTime += Time.deltaTime * 2f;
-
-                float pulse = 1.0f + 0.05f * Mathf.Sin(animationTime * 3f);
-                selectionBox.style.scale = new Scale(new Vector3(pulse, pulse, 1));
-
-                if (cornerPieces.Count >= 4)
+                foreach (var element in activeItemUIElements)
                 {
-                    float cornerWidth = cornerPieces[0].resolvedStyle.width;
-                    float cornerHeight = cornerPieces[0].resolvedStyle.height;
-
-                    for (int i = 0; i < cornerPieces.Count; i++)
+                    if (element.name.Contains(normalizedItemName) && element.visible)
                     {
-                        cornerPieces[i].style.position = Position.Absolute;
-                        cornerPieces[i].style.backgroundColor = StyleKeyword.Null;
+                        selectedElement = element;
+                        break;
                     }
-
-                    cornerPieces[0].style.left = 0;
-                    cornerPieces[0].style.top = 0;
-
-                    cornerPieces[1].style.left = selectionBoxWidth - cornerWidth;
-                    cornerPieces[1].style.top = 0;
-
-                    cornerPieces[2].style.left = 0;
-                    cornerPieces[2].style.top = selectionBoxHeight - cornerHeight;
-
-                    cornerPieces[3].style.left = selectionBoxWidth - cornerWidth;
-                    cornerPieces[3].style.top = selectionBoxHeight - cornerHeight;
                 }
 
-                selectionBox.MarkDirtyRepaint();
+                // If we found the element, update the selection box
+                if (selectedElement != null)
+                {
+                    float selectedItemWidth = selectedElement.resolvedStyle.width;
+                    float selectedItemHeight = selectedElement.resolvedStyle.height;
+
+                    float margin = 14f;
+                    float extraSpace = 25f;
+                    float selectionBoxWidth = selectedItemWidth + (margin * 2) + extraSpace;
+                    float selectionBoxHeight = selectedItemHeight + (margin * 2) + extraSpace;
+
+                    selectionBox.style.position = Position.Absolute;
+                    selectionBox.style.width = selectionBoxWidth;
+                    selectionBox.style.height = selectionBoxHeight;
+                    selectionBox.style.left = fixedPosition.x - (selectionBoxWidth / 2);
+                    selectionBox.style.top = fixedPosition.y - (selectionBoxHeight / 2);
+
+                    selectionBox.style.transformOrigin = new TransformOrigin(Length.Percent(50), Length.Percent(50), 0);
+
+                    selectionBox.style.backgroundColor = new Color(0, 0, 0, 0);
+                    selectionBox.style.borderLeftWidth = 0;
+                    selectionBox.style.borderRightWidth = 0;
+                    selectionBox.style.borderTopWidth = 0;
+                    selectionBox.style.borderBottomWidth = 0;
+
+                    animationTime += Time.deltaTime * 2f;
+
+                    float pulse = 1.0f + 0.05f * Mathf.Sin(animationTime * 3f);
+                    selectionBox.style.scale = new Scale(new Vector3(pulse, pulse, 1));
+
+                    if (cornerPieces.Count >= 4)
+                    {
+                        float cornerWidth = cornerPieces[0].resolvedStyle.width;
+                        float cornerHeight = cornerPieces[0].resolvedStyle.height;
+
+                        for (int i = 0; i < cornerPieces.Count; i++)
+                        {
+                            cornerPieces[i].style.position = Position.Absolute;
+                            cornerPieces[i].style.backgroundColor = StyleKeyword.Null;
+                        }
+
+                        cornerPieces[0].style.left = 0;
+                        cornerPieces[0].style.top = 0;
+
+                        cornerPieces[1].style.left = selectionBoxWidth - cornerWidth;
+                        cornerPieces[1].style.top = 0;
+
+                        cornerPieces[2].style.left = 0;
+                        cornerPieces[2].style.top = selectionBoxHeight - cornerHeight;
+
+                        cornerPieces[3].style.left = selectionBoxWidth - cornerWidth;
+                        cornerPieces[3].style.top = selectionBoxHeight - cornerHeight;
+                    }
+
+                    selectionBox.MarkDirtyRepaint();
+                }
             }
 
             yield return null;
@@ -376,7 +391,7 @@ public class ShopUIManager : MonoBehaviour
 
         if (activeItemUIElements.Count > 0)
         {
-            CalculateCircularPositions(activeItemUIElements.Count);
+            CalculateCircularPositions(items.Count);
 
             isConfirmingPurchase = false;
             insufficientFunds = false;
@@ -486,6 +501,8 @@ public class ShopUIManager : MonoBehaviour
     }
     public void ShowRegularItems(List<EquipmentItem> items)
     {
+        items = items.Where(item => item.cost > 0).ToList();
+
         currentItems = items;
         isEquipmentTabSelected = false;
         activeItemUIElements = regularItemUIElements;
@@ -504,6 +521,8 @@ public class ShopUIManager : MonoBehaviour
 
     public void ShowEquipmentItems(List<EquipmentItem> items)
     {
+        items = items.Where(item => item.cost > 0).ToList();
+
         currentItems = items;
         isEquipmentTabSelected = true;
         activeItemUIElements = equipmentUIElements;
@@ -527,24 +546,49 @@ public class ShopUIManager : MonoBehaviour
         if (activeItemUIElements.Count == 0 || currentItems == null || currentItems.Count == 0)
             return;
 
-        if (circularPositions.Count != activeItemUIElements.Count)
-            CalculateCircularPositions(activeItemUIElements.Count);
+        // Make sure we recalculate positions based on the filtered list length
+        if (circularPositions.Count != currentItems.Count)
+            CalculateCircularPositions(currentItems.Count);
 
-        for (int i = 0; i < activeItemUIElements.Count && i < currentItems.Count; i++)
+        // Create a mapping from item names to UI elements
+        Dictionary<string, VisualElement> nameToUIElement = new Dictionary<string, VisualElement>();
+
+        foreach (var element in activeItemUIElements)
+        {
+            // Store each UI element by its name for easy lookup
+            nameToUIElement[element.name] = element;
+        }
+
+        // Track which UI elements we've actually used
+        List<VisualElement> visibleElements = new List<VisualElement>();
+
+        // Now position only the UI elements that correspond to our filtered items
+        for (int i = 0; i < currentItems.Count; i++)
         {
             int positionIndex = (i - selectedItemIndex + circularPositions.Count) % circularPositions.Count;
             EquipmentItem currentItem = currentItems[i];
             Vector2 position = circularPositions[positionIndex];
-            VisualElement itemElement = activeItemUIElements[i];
 
+            // Find the corresponding UI element
+            VisualElement itemElement = null;
+            string normalizedItemName = currentItem.name.Replace(" ", "");
+
+            foreach (var element in activeItemUIElements)
+            {
+                if (element.name.Contains(normalizedItemName))
+                {
+                    itemElement = element;
+                    break;
+                }
+            }
+
+            if (itemElement == null)
+                continue;
+
+            visibleElements.Add(itemElement);
             bool isSelected = i == selectedItemIndex;
 
             ForceElementVisibility(itemElement, true);
-
-            // Set size based on selection state
-            //float size = isSelected ? 96 : 64;
-            //itemElement.style.width = size;
-            //itemElement.style.height = size;
 
             // Set size based on selection state
             float size = isSelected ? selectedSizeFactor : nonSelectedSizeFactor;
@@ -554,12 +598,10 @@ public class ShopUIManager : MonoBehaviour
                 new BackgroundSize(itemElement.style.width.value.value,
                                     itemElement.style.height.value.value);
 
-            //reset size to larger of element dimensions
-            size = (itemElement.style.width.value.value < itemElement.style.height.value.value) 
-                ? itemElement.style.width.value.value 
+            // Reset size to larger of element dimensions
+            size = (itemElement.style.width.value.value < itemElement.style.height.value.value)
+                ? itemElement.style.width.value.value
                 : itemElement.style.height.value.value;
-
-            //size = isSelected ? 96 : 64;
 
             // Apply tint based on selection state
             itemElement.style.unityBackgroundImageTintColor = isSelected ? normalTint : nonSelectedTint;
@@ -575,25 +617,28 @@ public class ShopUIManager : MonoBehaviour
             itemElement.style.backgroundSize =
                 new BackgroundSize(itemElement.style.width.value.value,
                                     itemElement.style.height.value.value);
-
         }
 
-        //update layering
-        IntLayerComparer comparer = new IntLayerComparer();
-        comparer.reference = new List<VisualElement>(activeItemUIElements);
-        List<int> layerOrder = new List<int>(Enumerable.Range(0, activeItemUIElements.Count));
-        layerOrder.Sort(comparer);
-        foreach (int i in layerOrder)
+        // Update layering using the visible elements list
+        if (visibleElements.Count > 0)
         {
-            activeItemUIElements[i].BringToFront();
+            IntLayerComparer comparer = new IntLayerComparer();
+            comparer.reference = visibleElements;
+            List<int> layerOrder = new List<int>(Enumerable.Range(0, visibleElements.Count));
+            layerOrder.Sort(comparer);
+            foreach (int i in layerOrder)
+            {
+                visibleElements[i].BringToFront();
+            }
+
+            // Bring the selected item to the front
+            if (selectedItemIndex >= 0 && selectedItemIndex < visibleElements.Count)
+                visibleElements[selectedItemIndex].BringToFront();
         }
-        activeItemUIElements[selectedItemIndex].BringToFront(); //bring selected item to be infront of other items.
-
-
 
         if (selectionBox != null)
         {
-            if (selectedItemIndex >= 0 && selectedItemIndex < activeItemUIElements.Count)
+            if (selectedItemIndex >= 0 && selectedItemIndex < currentItems.Count)
                 ForceElementVisibility(selectionBox, true);
             else
                 ForceElementVisibility(selectionBox, false);
@@ -617,13 +662,12 @@ public class ShopUIManager : MonoBehaviour
         index = Mathf.Clamp(index, 0, currentItems.Count - 1);
 
         selectedItemIndex = index;
-
         currentSelectedItem = currentItems[index];
 
-        rotationOffset = (activeItemUIElements.Count - index) % activeItemUIElements.Count;
+        // This line ensures the rotation offset is correctly calculated based on the filtered list
+        rotationOffset = (currentItems.Count - index) % currentItems.Count;
 
-        EquipmentItem selectedItem = currentItems[index];
-        UpdateItemDetails(selectedItem, -1); // -1 means don't update gold
+        UpdateItemDetails(currentSelectedItem, -1); // -1 means don't update gold
 
         UpdateCircularDisplay();
 
@@ -858,7 +902,9 @@ public class ShopUIManager : MonoBehaviour
             UpdateCircularDisplay();
 
         ResetAllUI();
-        animationTime = 0f;
+
+        // Remove this line to prevent animation reset
+        // animationTime = 0f;
     }
 
     public void OnTabKeyPressed(bool toItemsTab)
@@ -956,8 +1002,6 @@ public class ShopUIManager : MonoBehaviour
             showingPurchaseSuccess = false;
             showingSellSuccess = false;
 
-            ResetAllUI();
-
             // If this was a sell transaction and the item was completely sold out
             if (isInSellMode && currentSelectedItem != null && currentSelectedItem.ownedQuantity == 0)
             {
@@ -982,13 +1026,18 @@ public class ShopUIManager : MonoBehaviour
                         whatWillYouBuyText.text = isEquipmentTabSelected ? "You have no equipments to sell!" : "You have no items to sell!";
                     }
 
-                    // Hide item details UI
+                    currentSelectedItem = null;
                     HideItemDetailsUI();
+
+                    if (usableByText != null)
+                        ForceElementVisibility(usableByText, false);
                 }
 
                 // Update circular display with the new item list
                 UpdateCircularSellDisplay();
             }
+
+            ResetAllUI();
             return;
         }
 
@@ -1090,7 +1139,34 @@ public class ShopUIManager : MonoBehaviour
         {
             whatWillYouBuyText.text = isInSellMode ? "What'll you be\nselling?" : "What'll you be\nbuying?";
             showingSellSuccess = false;
+
+            if (isInSellMode && currentSelectedItem != null && currentSelectedItem.ownedQuantity == 0)
+            {
+                currentItems.RemoveAt(selectedItemIndex);
+
+                if (selectedItemIndex >= currentItems.Count && currentItems.Count > 0)
+                    selectedItemIndex = currentItems.Count - 1;
+
+                if (currentItems.Count > 0)
+                {
+                    currentSelectedItem = currentItems[selectedItemIndex];
+                    UpdateItemDetails(currentSelectedItem, -1);
+                }
+                else
+                {
+                    if (whatWillYouBuyText != null)
+                        whatWillYouBuyText.text = isEquipmentTabSelected ? "You have no equipments to sell!" : "You have no items to sell!";
+
+                    currentSelectedItem = null;
+                    HideItemDetailsUI();
+                }
+                UpdateCircularSellDisplay();
+            }
             ResetAllUI();
+        }
+        else if (showingRestrictedItem)
+        {
+            return;
         }
         else if (isConfirmingPurchase)
         {
@@ -1129,6 +1205,12 @@ public class ShopUIManager : MonoBehaviour
 
     private void ResetAllUI()
     {
+        if (currentSelectedItem == null)
+        {
+            HideItemDetailsUI();
+            return;  
+        }
+
         if (currentSelectedItem != null)
         {
             if (itemNameText != null)
@@ -1312,6 +1394,8 @@ public class ShopUIManager : MonoBehaviour
 
         HideAllItemElements();
 
+        HideItemDetailsUI();
+
         // Reset selection index if we have items
         if (currentItems.Count > 0)
         {
@@ -1394,11 +1478,7 @@ public class ShopUIManager : MonoBehaviour
         ShowItemDetailsUI();
 
         // Get the source collection based on the current tab
-        List<VisualElement> sourceCollection = isEquipmentTabSelected ?
-            equipmentUIElements : regularItemUIElements;
-
-        VisualElement parentFolder = isEquipmentTabSelected ?
-            equipmentfolder : itemfolder;
+        List<VisualElement> sourceCollection = isEquipmentTabSelected ? equipmentUIElements : regularItemUIElements;
 
         // Create a list to hold elements that match our owned items
         List<VisualElement> itemElementsToShow = new List<VisualElement>();
@@ -1444,43 +1524,52 @@ public class ShopUIManager : MonoBehaviour
         CalculateCircularPositions(itemElementsToShow.Count);
 
         // Update the activeItemUIElements list to match what we're displaying
-        // This is critical for the selection box animation to work correctly
         activeItemUIElements = itemElementsToShow;
 
         // Position each element in the circle
         for (int i = 0; i < itemElementsToShow.Count; i++)
         {
             int positionIndex = (i - selectedItemIndex + circularPositions.Count) % circularPositions.Count;
+            EquipmentItem currentItem = currentItems[i];
             Vector2 position = circularPositions[positionIndex];
-            VisualElement element = itemElementsToShow[i];
+            VisualElement itemElement = itemElementsToShow[i];
 
             bool isSelected = i == selectedItemIndex;
 
             // Show the element
-            ForceElementVisibility(element, true);
+            ForceElementVisibility(itemElement, true);
 
             // Set size based on selection state
             float size = isSelected ? selectedSizeFactor : nonSelectedSizeFactor;
-            element.style.width = element.style.width.value.value * size;
-            element.style.height = element.style.height.value.value * size;
+            itemElement.style.width = currentItem.icon.texture.width * size;
+            itemElement.style.height = currentItem.icon.texture.height * size;
+            itemElement.style.backgroundSize =
+                new BackgroundSize(itemElement.style.width.value.value,
+                                   itemElement.style.height.value.value);
 
-            element.style.backgroundSize =
-                new BackgroundSize(element.style.width.value.value,
-                                    element.style.height.value.value);
-
-            //reset size to larger of element dimensions
-            size = (element.style.width.value.value > element.style.height.value.value) ? element.style.width.value.value : element.style.height.value.value;
+            // Reset size to larger of element dimensions
+            size = (itemElement.style.width.value.value < itemElement.style.height.value.value)
+                ? itemElement.style.width.value.value
+                : itemElement.style.height.value.value;
 
             // Apply tint based on selection
-            element.style.unityBackgroundImageTintColor = isSelected ? normalTint : nonSelectedTint;
+            itemElement.style.unityBackgroundImageTintColor = isSelected ? normalTint : nonSelectedTint;
 
             // Position the element
-            element.style.position = Position.Absolute;
-            element.style.left = position.x - size / 2;
-            element.style.top = position.y - size / 2;
+            itemElement.style.position = Position.Absolute;
+            itemElement.style.left = position.x - size / 2;
+            itemElement.style.top = position.y - size / 2;
+
+            // Apply the second size adjustment as done in UpdateCircularDisplay
+            size = isSelected ? selectedSizeFactor : nonSelectedSizeFactor;
+            itemElement.style.width = currentItem.icon.texture.width * size;
+            itemElement.style.height = currentItem.icon.texture.height * size;
+            itemElement.style.backgroundSize =
+                new BackgroundSize(itemElement.style.width.value.value,
+                                   itemElement.style.height.value.value);
         }
 
-        //update layering
+        // Update layering
         IntLayerComparer comparer = new IntLayerComparer();
         comparer.reference = new List<VisualElement>(activeItemUIElements);
         List<int> layerOrder = new List<int>(Enumerable.Range(0, activeItemUIElements.Count));
@@ -1489,7 +1578,7 @@ public class ShopUIManager : MonoBehaviour
         {
             activeItemUIElements[i].BringToFront();
         }
-        activeItemUIElements[selectedItemIndex].BringToFront(); //bring selected item to be infront of other items.
+        activeItemUIElements[selectedItemIndex].BringToFront(); // Bring selected item to be in front of other items
 
         // Update selection box visibility
         if (selectionBox != null)
@@ -1519,7 +1608,10 @@ public class ShopUIManager : MonoBehaviour
 
         if (usableByText != null)
             ForceElementVisibility(usableByText, false);
-        
+
+        if (itemDescText != null)
+            ForceElementVisibility(itemDescText, false);
+
         if (ownededText != null)
             ForceElementVisibility(ownededText, false);
 
@@ -1568,6 +1660,9 @@ public class ShopUIManager : MonoBehaviour
 
         if (purimIcon != null)
             ForceElementVisibility(purimIcon, !isRegularItem);
+
+        if (itemDescText != null)
+            ForceElementVisibility(itemDescText, !isRegularItem);
     }
 
     public void ShowRestrictedItemMessage()

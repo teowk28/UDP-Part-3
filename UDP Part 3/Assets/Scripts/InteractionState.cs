@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -371,7 +371,7 @@ public class BuyMenuState : InteractionState
         if (shopUIManager != null && equipmentManager != null)
         {
             shopUIManager.ShowEquipmentBuyMenu(
-                equipmentManager.GetEquipmentItems(),
+                equipmentManager.GetBuyableEquipmentItems(),  
                 equipmentManager.GetPlayerGold(),
                 OnItemPurchased,
                 OnBuyMenuCancelled,
@@ -420,9 +420,9 @@ public class BuyMenuState : InteractionState
         if (shopUIManager != null)
         {
             if (isEquipmentTab)
-                shopUIManager.ShowEquipmentItems(equipmentManager.GetEquipmentItems());
+                shopUIManager.ShowEquipmentItems(equipmentManager.GetBuyableEquipmentItems());
             else
-                shopUIManager.ShowRegularItems(equipmentManager.GetRegularItems());
+                shopUIManager.ShowRegularItems(equipmentManager.GetBuyableRegularItems());
         }
     }
 
@@ -624,14 +624,10 @@ public class SellMenuState : InteractionState
         var shopUIManager = stateMachine.GetShopUIManager();
         if (shopUIManager != null)
         {
-            if (shopUIManager.IsInSellState())
-            {
-                shopUIManager.OnCancelClicked();
-            }
-            else
-            {
-                shopUIManager.OnCancelClicked();
-            }
+            if (shopUIManager.IsInRestrictedItemState())
+                return;
+
+            shopUIManager.OnCancelClicked();
         }
     }
 
