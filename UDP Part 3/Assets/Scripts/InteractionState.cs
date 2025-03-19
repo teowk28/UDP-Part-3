@@ -33,6 +33,7 @@ public class InteractionStateMachine : MonoBehaviour
 {
     private PlayerController playerController;
     private InteractionState currentState;
+    private InputHandler inputHandler;
 
     // References to UI managers
     private InteractionUIManager uiManager;
@@ -51,6 +52,8 @@ public class InteractionStateMachine : MonoBehaviour
 
         if (uiManager == null)
             Debug.LogError("InteractionUIManager not found in scene!");
+
+        inputHandler = InputHandler.Instance;
 
         if (shopUIManager == null)
             Debug.LogError("ShopUIManager not found in scene!");
@@ -72,22 +75,22 @@ public class InteractionStateMachine : MonoBehaviour
         if (currentState != null)
             currentState.Update();
 
-        if (Input.GetKeyDown(KeyCode.L))
+        if (inputHandler.InteractPressed())
             currentState.HandleLKeyPressed();
 
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (inputHandler.TabLeftPressed())
             currentState.HandleQKeyPressed();
 
-        if (Input.GetKeyDown(KeyCode.K))
+        if (inputHandler.CancelPressed())
             currentState.HandleKKeyPressed();
 
-        if (Input.GetKeyDown(KeyCode.A))
+        if (inputHandler.LeftPressed())
             currentState.HandleAKeyPressed();
 
-        if (Input.GetKeyDown(KeyCode.D))
+        if (inputHandler.RightPressed())
             currentState.HandleDKeyPressed();
 
-        if (Input.GetKeyDown(KeyCode.P))
+        if (inputHandler.TabRightPressed())
             currentState.HandlePKeyPressed();
     }
 

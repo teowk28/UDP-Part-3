@@ -31,6 +31,8 @@ public class PlayerController : MonoBehaviour
     private IInteractable lastInteractedWith;
     private FacingDirection currentDirection = FacingDirection.Down;
 
+    private InputHandler inputHandler;
+
     private enum FacingDirection
     {
         Up,
@@ -46,6 +48,8 @@ public class PlayerController : MonoBehaviour
 
         // Add the state machine component 
         stateMachine = gameObject.AddComponent<InteractionStateMachine>();
+
+        inputHandler = InputHandler.Instance;
 
         if (rb != null)
         {
@@ -83,8 +87,8 @@ public class PlayerController : MonoBehaviour
     private void HandleMovementInput()
     {
         // Get input axis values
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
+        float horizontal = inputHandler.GetHorizontalInput();
+        float vertical = inputHandler.GetVerticalInput();
 
         // Create movement vector
         movement = new Vector2(horizontal, vertical).normalized;
