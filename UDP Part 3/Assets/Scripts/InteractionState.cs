@@ -401,6 +401,13 @@ public class BuyMenuState : InteractionState
 
     private bool OnItemPurchased(EquipmentItem item)
     {
+        if (item.ownedQuantity >= 999)
+        {
+            var shopUIManager = stateMachine.GetShopUIManager();
+            if (shopUIManager != null)
+                shopUIManager.ShowInventoryLimitMessage();
+            return false;
+        }
         if (equipmentManager.PurchaseItem(item))
         {
             var shopUIManager = stateMachine.GetShopUIManager();
@@ -461,7 +468,7 @@ public class BuyMenuState : InteractionState
         {
             if (shopUIManager.IsInPurchaseState())
             {
-                if (!shopUIManager.IsInInsufficientFundsState() && !shopUIManager.IsInRestrictedItemState())
+                if (!shopUIManager.IsInInsufficientFundsState() && !shopUIManager.IsInRestrictedItemState() && !shopUIManager.IsInInventoryLimitState())
                     shopUIManager.OnCancelClicked();
             }
             else

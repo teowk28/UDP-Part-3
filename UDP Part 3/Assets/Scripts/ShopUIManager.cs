@@ -84,11 +84,13 @@ public class ShopUIManager : MonoBehaviour
     private bool isConfirmingSell = false;
     private bool showingSellSuccess = false;
     private bool isInSellMode = false;
+    private bool showingInventoryLimitMessage = false;
 
     private List<VisualElement> activeItemUIElements = new List<VisualElement>();
 
     public bool IsInInsufficientFundsState() => showingInsufficientFunds;
     public bool IsInRestrictedItemState() => showingRestrictedItem;
+    public bool IsInInventoryLimitState() => showingInventoryLimitMessage;
 
     private void Awake()
     {
@@ -172,7 +174,7 @@ public class ShopUIManager : MonoBehaviour
         // Return true if we're in any state where navigation should be locked
         return isConfirmingPurchase || isConfirmingSell || insufficientFunds ||
            showingInsufficientFunds || showingPurchaseSuccess ||
-           showingRestrictedItem || showingSellSuccess;
+           showingRestrictedItem || showingSellSuccess || showingInventoryLimitMessage;
     }
 
     public bool IsInSellState()
@@ -976,6 +978,26 @@ public class ShopUIManager : MonoBehaviour
             return;
         }
 
+        if (showingInventoryLimitMessage)
+        {
+            // Reset text based on the current mode (buying or selling)
+            whatWillYouBuyText.text = isInSellMode ? "What'll you be\nselling?" : "What'll you be\nbuying?";
+            showingInventoryLimitMessage = false;
+
+            var interactionManager = FindAnyObjectByType<InteractionUIManager>();
+            if (interactionManager != null)
+            {
+                // Set appropriate button text based on mode
+                interactionManager.SetButtonText(isInSellMode ? "Sell" : "Buy", "Back", true);
+            }
+
+            if (ownedQuantityText != null)
+                ownedQuantityText.style.color = new Color(1, 1, 1, 1);
+
+            ResetAllUI();
+            return;
+        }
+
         // Handle restricted item message (buying)
         if (showingRestrictedItem)
         {
@@ -1042,7 +1064,7 @@ public class ShopUIManager : MonoBehaviour
         }
 
         // Guard clause for states where we should block further interaction
-        if (showingInsufficientFunds || insufficientFunds || showingRestrictedItem)
+        if (showingInsufficientFunds || insufficientFunds || showingRestrictedItem || showingInventoryLimitMessage)
             return;
 
         // PART 2: HANDLE INITIAL CONFIRM CLICK (FIRST CLICK) FOR BOTH BUY AND SELL
@@ -1093,6 +1115,15 @@ public class ShopUIManager : MonoBehaviour
             // BUYING FLOW - Second confirmation click
             if (currentSelectedItem != null)
             {
+                if (currentSelectedItem.ownedQuantity >= 999)
+                {
+                    whatWillYouBuyText.text = "You can't carry\nany more!";
+                    showingInventoryLimitMessage = true;
+                    isConfirmingPurchase = false;
+                    ShowInventoryLimitMessage();
+                    return;
+                }
+
                 bool success = onItemPurchased != null && onItemPurchased.Invoke(currentSelectedItem);
 
                 if (success)
@@ -1278,7 +1309,15 @@ public class ShopUIManager : MonoBehaviour
             }
 
             if (ownedQuantityText != null)
+            {
                 ownedQuantityText.text = $"{currentSelectedItem.ownedQuantity}";
+
+                // Only keep quantity text red if in buy mode AND this specific item is at max capacity
+                if (!isInSellMode && currentSelectedItem.ownedQuantity >= 999)
+                    ownedQuantityText.style.color = new Color(1, 0, 0, 1); 
+                else
+                    ownedQuantityText.style.color = new Color(1, 1, 1, 1); 
+            }
 
             // Always show the container, but toggle character icons based on item type
             if (applicableContainer != null)
@@ -1678,6 +1717,54 @@ public class ShopUIManager : MonoBehaviour
         var cameraShaker = CameraShaker.Instance;
         if (cameraShaker != null)
             cameraShaker.ShakeCamera(0.3f, 0.04f);
+    }
+
+    public void ShowInventoryLimitMessage()
+    {
+        if (isInSellMode)
+            return;
+
+        whatWillYouBuyText.text = "You can't carry\nany more!";
+        showingInventoryLimitMessage = true;
+        isConfirmingPurchase = false;
+        showingInsufficientFunds = false;
+        insufficientFunds = false;
+        showingRestrictedItem = false;
+
+        var interactionManager = FindAnyObjectByType<InteractionUIManager>();
+        if (interactionManager != null)
+            interactionManager.SetButtonText("Ok", "", false);
+
+        var cameraShaker = CameraShaker.Instance;
+        if (cameraShaker != null)
+            cameraShaker.ShakeCamera(0.5f, 0.05f);  
+
+        StartCoroutine(FlashQuantityText());
+    }
+
+    private IEnumerator FlashQuantityText()
+    {
+        if (ownedQuantityText == null || currentSelectedItem == null)
+            yield break;
+
+        string quantityText = $"{currentSelectedItem.ownedQuantity}";
+
+        Color flashColor = new Color(1, 0, 0, 1); 
+        Color returnColor = new Color(0.8f, 0, 0, 1);
+
+        for (int i = 0; i < 4; i++)
+        {
+            ownedQuantityText.text = quantityText;
+            ownedQuantityText.style.color = flashColor;
+            yield return new WaitForSeconds(0.25f);
+
+            ownedQuantityText.text = quantityText;
+            ownedQuantityText.style.color = returnColor;
+            yield return new WaitForSeconds(0.25f);
+        }
+
+        ownedQuantityText.text = quantityText;
+        ownedQuantityText.style.color = flashColor;
     }
 
     private string GetItemEffect(string itemName)

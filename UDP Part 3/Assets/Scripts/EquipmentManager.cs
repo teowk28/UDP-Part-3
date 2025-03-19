@@ -83,7 +83,7 @@ public class EquipmentManager : MonoBehaviour
         equipmentItems.Add(new EquipmentItem { name = "Midge Robe", cost = 800, ownedQuantity = 0, usableByRandi = false, usableByPopoi = true, usableByPurim = false });
         equipmentItems.Add(new EquipmentItem { name = "Lazuri Ring", cost = 8800, ownedQuantity = 0, usableByRandi = true, usableByPopoi = true, usableByPurim = true });
         equipmentItems.Add(new EquipmentItem { name = "Dragon Helm", cost = 7500, ownedQuantity = 0, usableByRandi = true, usableByPopoi = true, usableByPurim = true });
-        equipmentItems.Add(new EquipmentItem { name = "Rabite Cap", cost = 45, ownedQuantity = 0, usableByRandi = false, usableByPopoi = true, usableByPurim = false });
+        equipmentItems.Add(new EquipmentItem { name = "Rabite Cap", cost = 45, ownedQuantity = 998, usableByRandi = false, usableByPopoi = true, usableByPurim = false });
         equipmentItems.Add(new EquipmentItem { name = "Quill Cap", cost = 110, ownedQuantity = 0, usableByRandi = false, usableByPopoi = true, usableByPurim = true });
         equipmentItems.Add(new EquipmentItem { name = "Raccoon Cap", cost = 550, ownedQuantity = 0, usableByRandi = true, usableByPopoi = true, usableByPurim = true });
         equipmentItems.Add(new EquipmentItem { name = "Gauntlet", cost = 37500, ownedQuantity = 0, usableByRandi = true, usableByPopoi = true, usableByPurim = true });
