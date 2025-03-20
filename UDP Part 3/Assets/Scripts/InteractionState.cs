@@ -444,8 +444,23 @@ public class BuyMenuState : InteractionState
     public override void HandleLKeyPressed()
     {
         var shopUIManager = stateMachine.GetShopUIManager();
+        var uiManager = stateMachine.GetUIManager();
+
         if (shopUIManager != null)
+        {
+            if (shopUIManager.IsInInsufficientFundsState() ||
+                shopUIManager.IsInRestrictedItemState() ||
+                shopUIManager.IsInInventoryLimitState())
+            {
+                if (uiManager != null)
+                {
+                    uiManager.SetCancelButtonEnabled(false);
+                }
+            }
+
+            // Always call OnConfirmClicked to handle the confirmation
             shopUIManager.OnConfirmClicked();
+        }
     }
 
     public override void HandleQKeyPressed()
@@ -612,8 +627,23 @@ public class SellMenuState : InteractionState
     public override void HandleLKeyPressed()
     {
         var shopUIManager = stateMachine.GetShopUIManager();
+        var uiManager = stateMachine.GetUIManager();
+
         if (shopUIManager != null)
+        {
+            // Check if we need to disable cancel button
+            if (shopUIManager.IsInInsufficientFundsState() ||
+                shopUIManager.IsInRestrictedItemState() ||
+                shopUIManager.IsInInventoryLimitState())
+            {
+                if (uiManager != null)
+                {
+                    uiManager.SetCancelButtonEnabled(false);
+                }
+            }
+
             shopUIManager.OnConfirmClicked();
+        }
     }
 
     public override void HandleQKeyPressed()

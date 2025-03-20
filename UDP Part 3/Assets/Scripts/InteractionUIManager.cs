@@ -12,6 +12,7 @@ public class InteractionUIManager : MonoBehaviour
     private VisualElement buySellMenu;       
     private VisualElement buySellBox;        
     private VisualElement confirmCancelPanel; 
+    private VisualElement buyMenu;
 
     // Buy/Sell labels
     private Label buyLabel;
@@ -38,9 +39,10 @@ public class InteractionUIManager : MonoBehaviour
 
         // Find UI elements 
         interactionPanel = root.Q("InteractionButtonPanel"); 
-        buySellMenu = root.Q("BuySellMenu");                
+        buySellMenu = root.Q("BuySellMenu");       
+        buyMenu = root.Q("BuyMenu");
         buySellBox = buySellMenu?.Q("BuySellBox");          
-        confirmCancelPanel = root.Q("ConfirmCancelButtonPanel"); 
+        confirmCancelPanel = buyMenu.Q("ConfirmCancelButtonPanel"); 
 
         if (buySellBox != null)
         {
@@ -129,7 +131,7 @@ public class InteractionUIManager : MonoBehaviour
     {
         if (confirmCancelPanel == null) return;
         ForceElementVisibility(confirmCancelPanel, true);
-        SetButtonText(confirmText, cancelText, showCancelButton);
+        // SetButtonText(confirmText, cancelText, showCancelButton);
     }
 
     public void HideConfirmCancelPanel()
@@ -187,16 +189,30 @@ public class InteractionUIManager : MonoBehaviour
         VisualElement cancelButton = confirmCancelPanel.Q("CancelButton");
         if (cancelButton == null) return;
 
+        VisualElement cancelLeft = cancelButton.Q("CancelLeft");
+        VisualElement cancelMid = cancelButton.Q("CancelMid");
+        VisualElement cancelRight = cancelButton.Q("CancelRight");
+        Label cancelText = cancelButton.Q<Label>("CancelText");
+        Label lText = cancelButton.Q<Label>("LText");
+
         if (enabled)
         {
-            cancelButton.SetEnabled(true);
-            cancelButton.style.opacity = 1f;
+            if (cancelLeft != null) cancelLeft.style.unityBackgroundImageTintColor = Color.white;
+            if (cancelMid != null) cancelMid.style.unityBackgroundImageTintColor = Color.white;
+            if (cancelRight != null) cancelRight.style.unityBackgroundImageTintColor = Color.white;
+            if (cancelText != null) cancelText.style.color = Color.white;
+            if (lText != null) lText.style.color = Color.white;
         }
         else
         {
-            cancelButton.SetEnabled(false);
-            cancelButton.style.opacity = 0.5f;
+            Color disabledTint = new Color(0.6f, 0.6f, 0.6f, 1f);
+            if (cancelLeft != null) cancelLeft.style.unityBackgroundImageTintColor = disabledTint;
+            if (cancelMid != null) cancelMid.style.unityBackgroundImageTintColor = disabledTint;
+            if (cancelRight != null) cancelRight.style.unityBackgroundImageTintColor = disabledTint;
+            if (cancelText != null) cancelText.style.color = disabledTint;
+            if (lText != null) lText.style.color = disabledTint;
         }
+        cancelButton.MarkDirtyRepaint();
     }
 
     // Handle left/right navigation in the buy/sell menu

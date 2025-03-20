@@ -793,8 +793,8 @@ public class ShopUIManager : MonoBehaviour
 
         var interactionManager = FindAnyObjectByType<InteractionUIManager>();
         if (interactionManager != null)
-            interactionManager.SetButtonText("Ok", "", false);
-
+            interactionManager.SetCancelButtonEnabled(false);
+           
         var cameraShaker = CameraShaker.Instance;
         if (cameraShaker != null)
             cameraShaker.ShakeCamera(0.5f, 0.05f);
@@ -969,10 +969,7 @@ public class ShopUIManager : MonoBehaviour
 
             var interactionManager = FindAnyObjectByType<InteractionUIManager>();
             if (interactionManager != null)
-            {
-                // Set appropriate button text based on mode
-                interactionManager.SetButtonText(isInSellMode ? "Sell" : "Buy", "Back", true);
-            }
+                interactionManager.SetCancelButtonEnabled(true);
 
             ResetAllUI();
             return;
@@ -986,10 +983,7 @@ public class ShopUIManager : MonoBehaviour
 
             var interactionManager = FindAnyObjectByType<InteractionUIManager>();
             if (interactionManager != null)
-            {
-                // Set appropriate button text based on mode
-                interactionManager.SetButtonText(isInSellMode ? "Sell" : "Buy", "Back", true);
-            }
+                interactionManager.SetCancelButtonEnabled(true);
 
             if (ownedQuantityText != null)
                 ownedQuantityText.style.color = new Color(1, 1, 1, 1);
@@ -1007,10 +1001,7 @@ public class ShopUIManager : MonoBehaviour
 
             var interactionManager = FindAnyObjectByType<InteractionUIManager>();
             if (interactionManager != null)
-            {
-                // Set appropriate button text based on mode
-                interactionManager.SetButtonText(isInSellMode ? "Sell" : "Buy", "Back", true);
-            }
+                interactionManager.SetCancelButtonEnabled(true);
 
             ResetAllUI();
             return;
@@ -1712,11 +1703,11 @@ public class ShopUIManager : MonoBehaviour
 
         var interactionManager = FindAnyObjectByType<InteractionUIManager>();
         if (interactionManager != null)
-            interactionManager.SetButtonText("Ok", "", false);
-
+            interactionManager.SetCancelButtonEnabled(false);
+            
         var cameraShaker = CameraShaker.Instance;
         if (cameraShaker != null)
-            cameraShaker.ShakeCamera(0.3f, 0.04f);
+            cameraShaker.ShakeCamera(0.5f, 0.05f);
     }
 
     public void ShowInventoryLimitMessage()
@@ -1732,8 +1723,8 @@ public class ShopUIManager : MonoBehaviour
         showingRestrictedItem = false;
 
         var interactionManager = FindAnyObjectByType<InteractionUIManager>();
-        if (interactionManager != null)
-            interactionManager.SetButtonText("Ok", "", false);
+        if (interactionManager != null)       
+            interactionManager.SetCancelButtonEnabled(false);
 
         var cameraShaker = CameraShaker.Instance;
         if (cameraShaker != null)
