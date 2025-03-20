@@ -145,18 +145,22 @@ public class InteractionUIManager : MonoBehaviour
             return;
 
         selectedOption = option;
+        VisualElement pointer = buySellBox.Q<VisualElement>("Pointer");
 
         if (option == 0)
         {
             // Buy is selected
             buyLabel.style.color = new Color(1, 1, 0); 
-            sellLabel.style.color = new Color(1, 1, 1); 
+            sellLabel.style.color = new Color(1, 1, 1);
+            pointer.style.left = 96;
+
         }
         else
         {
             // Sell is selected
             buyLabel.style.color = new Color(1, 1, 1); 
-            sellLabel.style.color = new Color(1, 1, 0); 
+            sellLabel.style.color = new Color(1, 1, 0);
+            pointer.style.left = 288;
         }
     }
 
@@ -244,4 +248,5 @@ public class InteractionUIManager : MonoBehaviour
 
         element.MarkDirtyRepaint();
     }
+
 }
