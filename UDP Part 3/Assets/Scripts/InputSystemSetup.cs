@@ -35,8 +35,8 @@ public class InputSystemSetup : MonoBehaviour
         CreateMovementAction(actionMap, "MoveLeft", "<Keyboard>/a", "<Gamepad>/dpad/left");
         CreateMovementAction(actionMap, "MoveRight", "<Keyboard>/d", "<Gamepad>/dpad/right");
 
-        CreateButtonAction(actionMap, "Select", "<Keyboard>/l", "<Gamepad>/buttonSouth");
-        CreateButtonAction(actionMap, "Cancel", "<Keyboard>/k", "<Gamepad>/buttonEast");
+        CreateButtonAction(actionMap, "Select", "<Keyboard>/l", "<Gamepad>/buttonEast");
+        CreateButtonAction(actionMap, "Cancel", "<Keyboard>/k", "<Gamepad>/buttonSouth");
         CreateButtonAction(actionMap, "TabLeft", "<Keyboard>/q", "<Gamepad>/leftShoulder");
         CreateButtonAction(actionMap, "TabRight", "<Keyboard>/p", "<Gamepad>/rightShoulder");
 
