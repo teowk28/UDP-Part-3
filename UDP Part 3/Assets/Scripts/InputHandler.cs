@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
-
+using UnityEngine.InputSystem;
+using System.Linq;
 
 public class InputHandler : MonoBehaviour
 {
-    // Singleton pattern for easy global access
     private static InputHandler _instance;
     public static InputHandler Instance
     {
@@ -11,7 +11,6 @@ public class InputHandler : MonoBehaviour
         {
             if (_instance == null)
             {
-                // Create a new GameObject with this component if it doesn't exist
                 GameObject go = new GameObject("InputHandler");
                 _instance = go.AddComponent<InputHandler>();
                 DontDestroyOnLoad(go);
@@ -20,21 +19,23 @@ public class InputHandler : MonoBehaviour
         }
     }
 
-    // Constant names to be used for controller button mappings in Input Manager
-    public const string ACTION_INTERACT = "Interact";       // L key → A button
-    public const string ACTION_CANCEL = "Cancel";           // K key → B button
-    public const string ACTION_TAB_LEFT = "TabLeft";        // Q key → L button
-    public const string ACTION_TAB_RIGHT = "TabRight";      // P key → R button
-    public const string ACTION_NAVIGATE_LEFT = "Left";      // A key → D-pad/stick left
-    public const string ACTION_NAVIGATE_RIGHT = "Right";    // D key → D-pad/stick right
+    private InputAction moveUpAction;
+    private InputAction moveDownAction;
+    private InputAction moveLeftAction;
+    private InputAction moveRightAction;
+    private InputAction selectAction;
+    private InputAction cancelAction;
+    private InputAction tabLeftAction;
+    private InputAction tabRightAction;
 
-    // Used to detect current input method for UI adjustments (optional)
+    private Vector2 movementInput = Vector2.zero;
+
+
     public enum InputMethod { Keyboard, Controller }
     public InputMethod CurrentInputMethod { get; private set; } = InputMethod.Keyboard;
 
     private void Awake()
     {
-        // Singleton setup
         if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
@@ -43,83 +44,141 @@ public class InputHandler : MonoBehaviour
 
         _instance = this;
         DontDestroyOnLoad(gameObject);
-    }
 
-    private void Update()
-    {
-        Debug.Log($"Connected joysticks: {string.Join(", ", Input.GetJoystickNames())}");
-        // Detect if controller or keyboard is being used
-        DetectInputMethod();
-    }
+        InputActionAsset asset = InputSystemSetup.InputActions;
 
-
-    private void DetectInputMethod()
-    {
-        // Check for controller button presses or stick movement
-        if (Input.GetJoystickNames().Length > 0)
+        if (asset == null)
         {
-            // Check all controller inputs that are mapped
-            if (Input.GetButtonDown(ACTION_INTERACT) ||
-                Input.GetButtonDown(ACTION_CANCEL) ||
-                Input.GetButtonDown(ACTION_TAB_LEFT) ||
-                Input.GetButtonDown(ACTION_TAB_RIGHT) ||
-                Mathf.Abs(Input.GetAxisRaw("Horizontal")) > 0.5f ||
-                Mathf.Abs(Input.GetAxisRaw("Vertical")) > 0.5f)
-            {
-                CurrentInputMethod = InputMethod.Controller;
-                return;
-            }
+            Debug.LogError("Could not find the InputActionAsset from InputSystemSetup!");
+            return; 
         }
 
-        // Check for any keyboard input
-        if (Input.GetKeyDown(KeyCode.L) ||
-            Input.GetKeyDown(KeyCode.K) ||
-            Input.GetKeyDown(KeyCode.Q) ||
-            Input.GetKeyDown(KeyCode.P) ||
-            Input.GetKeyDown(KeyCode.A) ||
-            Input.GetKeyDown(KeyCode.D) ||
-            Input.GetKeyDown(KeyCode.W) ||
-            Input.GetKeyDown(KeyCode.S))
+        var actionMap = asset.FindActionMap("UI");
+
+        if (actionMap == null)
+        {
+            Debug.LogError("Could not find the 'UI' action map in the assigned InputActionAsset!");
+            return; 
+        }
+
+        moveUpAction = actionMap.FindAction("MoveUp");
+        moveDownAction = actionMap.FindAction("MoveDown");
+        moveLeftAction = actionMap.FindAction("MoveLeft");
+        moveRightAction = actionMap.FindAction("MoveRight");
+        selectAction = actionMap.FindAction("Select");
+        cancelAction = actionMap.FindAction("Cancel");
+        tabLeftAction = actionMap.FindAction("TabLeft");
+        tabRightAction = actionMap.FindAction("TabRight");
+
+        if (moveUpAction == null || moveDownAction == null || moveLeftAction == null || moveRightAction == null ||
+            selectAction == null || cancelAction == null || tabLeftAction == null || tabRightAction == null)
+        {
+            Debug.LogError("One or more input actions were not found in the 'UI' action map!");
+            return; 
+        }
+
+        moveUpAction.performed += ctx => { movementInput.y = 1; UpdateInputMethod(ctx.control.device); };
+        moveUpAction.canceled += ctx => { if (movementInput.y > 0) movementInput.y = 0; };
+
+        moveDownAction.performed += ctx => { movementInput.y = -1; UpdateInputMethod(ctx.control.device); };
+        moveDownAction.canceled += ctx => { if (movementInput.y < 0) movementInput.y = 0; };
+
+        moveLeftAction.performed += ctx => { movementInput.x = -1; UpdateInputMethod(ctx.control.device); };
+        moveLeftAction.canceled += ctx => { if (movementInput.x < 0) movementInput.x = 0; };
+
+        moveRightAction.performed += ctx => { movementInput.x = 1; UpdateInputMethod(ctx.control.device); };
+        moveRightAction.canceled += ctx => { if (movementInput.x > 0) movementInput.x = 0; };
+
+        selectAction.performed += ctx => UpdateInputMethod(ctx.control.device);
+        cancelAction.performed += ctx => UpdateInputMethod(ctx.control.device);
+    }
+
+    private void OnEnable()
+    {
+        moveUpAction?.Enable();
+        moveDownAction?.Enable();
+        moveLeftAction?.Enable();
+        moveRightAction?.Enable();
+        selectAction?.Enable();
+        cancelAction?.Enable();
+        tabLeftAction?.Enable();
+        tabRightAction?.Enable();
+    }
+
+    private void OnDisable()
+    {
+        moveUpAction?.Disable();
+        moveDownAction?.Disable();
+        moveLeftAction?.Disable();
+        moveRightAction?.Disable();
+        selectAction?.Disable();
+        cancelAction?.Disable();
+        tabLeftAction?.Disable();
+        tabRightAction?.Disable();
+    }
+
+    private void UpdateInputMethod(InputDevice device)
+    {
+        if (device is Keyboard)
         {
             CurrentInputMethod = InputMethod.Keyboard;
         }
+        else
+        {
+            CurrentInputMethod = InputMethod.Controller;
+        }
     }
 
-
-    public bool GetButtonDown(KeyCode keyCode, string buttonName)
+    public float GetHorizontalInput()
     {
-        return Input.GetKeyDown(keyCode) || Input.GetButtonDown(buttonName);
+        return movementInput.x;
     }
 
-    public float GetDirectionalInput(KeyCode negativeKey, KeyCode positiveKey, string axisName)
+    public float GetVerticalInput()
     {
-        // First check keyboard
-        float keyboardValue = 0f;
-        if (Input.GetKey(negativeKey)) keyboardValue -= 1f;
-        if (Input.GetKey(positiveKey)) keyboardValue += 1f;
-
-        // If keyboard is being used, return its value
-        if (keyboardValue != 0f) return keyboardValue;
-
-        // Otherwise return controller axis value
-        return Input.GetAxisRaw(axisName);
+        return movementInput.y;
     }
 
-    // Convenience methods for common inputs used in your code
+    public bool InteractPressed()
+    {
+        return selectAction.WasPressedThisFrame();
+    }
 
-    public bool InteractPressed() => GetButtonDown(KeyCode.L, ACTION_INTERACT);
+    public bool CancelPressed()
+    {
+        return cancelAction.WasPressedThisFrame();
+    }
 
-    public bool CancelPressed() => GetButtonDown(KeyCode.K, ACTION_CANCEL);
+    public bool TabLeftPressed()
+    {
+        return tabLeftAction.WasPressedThisFrame();
+    }
 
-    public bool TabLeftPressed() => GetButtonDown(KeyCode.Q, ACTION_TAB_LEFT);
+    public bool TabRightPressed()
+    {
+        return tabRightAction.WasPressedThisFrame();
+    }
 
-    public bool TabRightPressed() => GetButtonDown(KeyCode.P, ACTION_TAB_RIGHT);
+    public bool LeftPressed()
+    {
+        return moveLeftAction.WasPressedThisFrame();
+    }
 
-    public bool LeftPressed() => GetButtonDown(KeyCode.A, ACTION_NAVIGATE_LEFT);
+    public bool RightPressed()
+    {
+        return moveRightAction.WasPressedThisFrame();
+    }
 
-    public bool RightPressed() => GetButtonDown(KeyCode.D, ACTION_NAVIGATE_RIGHT);
+    public void DebugControllerInputs()
+    {
+        Debug.Log($"Movement Input: {movementInput}");
 
-    public float GetHorizontalInput() => GetDirectionalInput(KeyCode.A, KeyCode.D, "Horizontal");
-
-    public float GetVerticalInput() => GetDirectionalInput(KeyCode.S, KeyCode.W, "Vertical");
+        var gamepads = Gamepad.all;
+        if (gamepads.Count > 0)
+        {
+            var gamepad = gamepads[0];
+            Debug.Log($"D-pad: Up={gamepad.dpad.up.isPressed}, Down={gamepad.dpad.down.isPressed}, " +
+                      $"Left={gamepad.dpad.left.isPressed}, Right={gamepad.dpad.right.isPressed}");
+        }
+    }
 }
