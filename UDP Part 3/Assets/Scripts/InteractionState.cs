@@ -41,6 +41,8 @@ public class InteractionStateMachine : MonoBehaviour
     // Dictionary to store all possible states
     private Dictionary<System.Type, InteractionState> states = new Dictionary<System.Type, InteractionState>();
 
+    private int lastBuySellOption = 0;
+
     private void Awake()
     {
         playerController = GetComponent<PlayerController>();
@@ -110,6 +112,16 @@ public class InteractionStateMachine : MonoBehaviour
         currentState = states[typeof(T)];
         Debug.Log($"Entering state: {currentState.GetType().Name}");
         currentState.EnterState();
+    }
+
+    public int GetLastBuySellOption()
+    {
+        return lastBuySellOption;
+    }
+
+    public void SetLastBuySellOption(int option)
+    {
+        lastBuySellOption = option;
     }
 
     public InteractionUIManager GetUIManager() => uiManager;
@@ -266,7 +278,10 @@ public class BuySellMenuState : InteractionState
             uiManager.ShowConfirmCancelPanel();
 
             uiManager.ShowConfirmCancelPanel("Confirm", "Cancel");
-            player.StartCoroutine(DelayedShowBuySellMenu(uiManager));
+
+            int currentOption = ((InteractionStateMachine)stateMachine).GetLastBuySellOption();
+
+            player.StartCoroutine(DelayedShowBuySellMenu(uiManager, currentOption));
         }
         else
         {
@@ -274,7 +289,7 @@ public class BuySellMenuState : InteractionState
         }
     }
 
-    private IEnumerator DelayedShowBuySellMenu(InteractionUIManager uiManager)
+    private IEnumerator DelayedShowBuySellMenu(InteractionUIManager uiManager, int initialOption)
     {
         yield return new WaitForSeconds(0);
 
@@ -282,7 +297,8 @@ public class BuySellMenuState : InteractionState
         uiManager.ShowBuySellMenu(
             OnBuySelected,
             OnSellSelected,
-            OnCancelled
+            OnCancelled,
+            initialOption
         );
     }
 
@@ -298,11 +314,13 @@ public class BuySellMenuState : InteractionState
 
     private void OnBuySelected()
     {
+        ((InteractionStateMachine)stateMachine).SetLastBuySellOption(0);
         stateMachine.ChangeState<BuyMenuState>();
     }
 
     private void OnSellSelected()
     {
+        ((InteractionStateMachine)stateMachine).SetLastBuySellOption(1);
         stateMachine.ChangeState<SellMenuState>();
     }
 

@@ -83,7 +83,7 @@ public class InteractionUIManager : MonoBehaviour
     }
 
     // Show the buy/sell menu
-    public void ShowBuySellMenu(System.Action buyCallback, System.Action sellCallback, System.Action cancelCallback)
+    public void ShowBuySellMenu(System.Action buyCallback, System.Action sellCallback, System.Action cancelCallback, int initialOption = 0)
     {
         onBuyConfirmed = buyCallback;
         onSellConfirmed = sellCallback;
@@ -109,7 +109,7 @@ public class InteractionUIManager : MonoBehaviour
                 sellLabel = buySellBox.Q<Label>("Sell");
 
                 if (buyLabel != null && sellLabel != null)
-                    SelectOption(0);
+                    SelectOption(initialOption);
             }
 
         }
