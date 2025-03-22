@@ -1,9 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
-using UnityEngine.InputSystem.Layouts;
-using System.Collections.Generic;
-using System.Linq;
 
 public class InputSystemSetup : MonoBehaviour
 {

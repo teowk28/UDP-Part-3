@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System;
 using System.Collections;
-using static UnityEditor.Timeline.TimelinePlaybackControls;
 using System.Linq;
 
 public class ShopUIManager : MonoBehaviour
@@ -24,6 +23,9 @@ public class ShopUIManager : MonoBehaviour
     private VisualElement itemTab;
     private VisualElement selectionBox;
     private VisualElement whatWillYouBuyBox;
+    private VisualElement arrowButtonsSprite;
+    private VisualElement lShopWheelButton;
+    private VisualElement rShopWheelButton;
     private VisualElement inventory;
     private VisualElement equipmentfolder;
     private VisualElement itemfolder;
@@ -86,6 +88,10 @@ public class ShopUIManager : MonoBehaviour
     private bool isInSellMode = false;
     private bool showingInventoryLimitMessage = false;
 
+    private Color normalButtonColor = Color.white;
+    private Color pressedButtonColor = new Color(0.7f, 0.7f, 0.7f, 1f); // Darker tint for pressed state
+    private float buttonAnimationDuration = 0.1f; // Duration of press animation
+
     private List<VisualElement> activeItemUIElements = new List<VisualElement>();
 
     public bool IsInInsufficientFundsState() => showingInsufficientFunds;
@@ -109,6 +115,22 @@ public class ShopUIManager : MonoBehaviour
         inventory = buyMenu?.Q("Inventory");
         selectionBox = root.Q("SelectionBox");
         whatWillYouBuyBox = buyMenu?.Q("WhatWillYouBuyBox");
+        arrowButtonsSprite = root.Q("ArrowButtonsSprite");
+
+        if (arrowButtonsSprite != null)
+        {
+            lShopWheelButton = arrowButtonsSprite.Q("LShopWheelButton");
+            rShopWheelButton = arrowButtonsSprite.Q("RShopWheelButton");
+
+            // Initialize button states
+            if (lShopWheelButton != null)
+                lShopWheelButton.style.unityBackgroundImageTintColor = normalButtonColor;
+            if (rShopWheelButton != null)
+                rShopWheelButton.style.unityBackgroundImageTintColor = normalButtonColor;
+
+            // Make sure they're visible
+            ForceElementVisibility(arrowButtonsSprite, true);
+        }
 
         applicableContainer = buyMenu?.Q("Applicable");
         randiIcon = applicableContainer.Q("RandiIcon");
@@ -220,6 +242,15 @@ public class ShopUIManager : MonoBehaviour
 
         Vector2 fixedPosition = new Vector2(circleCenter.x, circleCenter.y + verticalRadius);
 
+        // Selection Box Colour
+        Color normalCornerColor = Color.white; 
+        Color confirmingCornerColor = new Color(0.66f, 0.66f, 0.66f, 1f); 
+
+        // Variables to control animation
+        float minPulseScale = 0.95f; // The minimum scale during pulse animation
+        float maxPulseScale = 1.05f; // The maximum scale during pulse animation
+        float pulseSpeed = 3f; // Speed of the pulse animation
+
         while (true)
         {
             if (selectionBox != null && selectionBox.visible && selectedItemIndex >= 0 &&
@@ -258,15 +289,30 @@ public class ShopUIManager : MonoBehaviour
 
                     selectionBox.style.transformOrigin = new TransformOrigin(Length.Percent(50), Length.Percent(50), 0);
 
+                    // Keep the background transparent
                     selectionBox.style.backgroundColor = new Color(0, 0, 0, 0);
                     selectionBox.style.borderLeftWidth = 0;
                     selectionBox.style.borderRightWidth = 0;
                     selectionBox.style.borderTopWidth = 0;
                     selectionBox.style.borderBottomWidth = 0;
 
+                    // Update animation time
                     animationTime += Time.deltaTime * 2f;
 
-                    float pulse = 1.0f + 0.05f * Mathf.Sin(animationTime * 3f);
+                    // Determine the scale based on animation state
+                    float pulse;
+
+                    // If in confirmation state (buying/selling), freeze at minimum scale
+                    if (isConfirmingPurchase || isConfirmingSell)
+                    {
+                        pulse = minPulseScale;
+                    }
+                    else
+                    {
+                        // Normal pulsing animation
+                        pulse = minPulseScale + ((maxPulseScale - minPulseScale) * 0.5f * (1f + Mathf.Sin(animationTime * pulseSpeed)));
+                    }
+
                     selectionBox.style.scale = new Scale(new Vector3(pulse, pulse, 1));
 
                     if (cornerPieces.Count >= 4)
@@ -274,9 +320,18 @@ public class ShopUIManager : MonoBehaviour
                         float cornerWidth = cornerPieces[0].resolvedStyle.width;
                         float cornerHeight = cornerPieces[0].resolvedStyle.height;
 
+                        // Determine the corner color based on state
+                        Color cornerColor = (isConfirmingPurchase || isConfirmingSell) ?
+                                            confirmingCornerColor : normalCornerColor;
+
                         for (int i = 0; i < cornerPieces.Count; i++)
                         {
                             cornerPieces[i].style.position = Position.Absolute;
+
+                            // Set the tint color of the corner pieces
+                            cornerPieces[i].style.unityBackgroundImageTintColor = cornerColor;
+
+                            // Keep the background transparent
                             cornerPieces[i].style.backgroundColor = StyleKeyword.Null;
                         }
 
@@ -873,11 +928,13 @@ public class ShopUIManager : MonoBehaviour
 
         if (right)
         {
+            ShowRightButtonPressed();
             // Move anti-clockwise
             newIndex = (selectedItemIndex - 1 + currentItems.Count) % currentItems.Count;
         }
         else
         {
+            ShowLeftButtonPressed();
             // Move clockwise
             newIndex = (selectedItemIndex + 1) % currentItems.Count;
         }
@@ -1756,6 +1813,27 @@ public class ShopUIManager : MonoBehaviour
 
         ownedQuantityText.text = quantityText;
         ownedQuantityText.style.color = flashColor;
+    }
+
+    public void ShowLeftButtonPressed()
+    {
+        if (lShopWheelButton == null) return;
+        lShopWheelButton.style.unityBackgroundImageTintColor = pressedButtonColor;
+        StartCoroutine(ResetButtonState(lShopWheelButton));
+    }
+
+    public void ShowRightButtonPressed()
+    {
+        if (rShopWheelButton == null) return;
+        rShopWheelButton.style.unityBackgroundImageTintColor = pressedButtonColor;
+        StartCoroutine(ResetButtonState(rShopWheelButton));
+    }
+
+    private IEnumerator ResetButtonState(VisualElement button)
+    {
+        yield return new WaitForSeconds(buttonAnimationDuration);
+        button.style.unityBackgroundImageTintColor = normalButtonColor;
+        button.MarkDirtyRepaint();
     }
 
     private string GetItemEffect(string itemName)

@@ -1,10 +1,5 @@
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.UIElements;
-using System;
-using System.Collections;
-using static UnityEditor.Timeline.TimelinePlaybackControls;
-using System.Linq;
 
 
 public class LayerComparer: IComparer<VisualElement>
