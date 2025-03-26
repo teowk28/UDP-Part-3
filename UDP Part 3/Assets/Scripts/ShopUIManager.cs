@@ -303,7 +303,7 @@ public class ShopUIManager : MonoBehaviour
                     float pulse;
 
                     // If in confirmation state (buying/selling), freeze at minimum scale
-                    if (isConfirmingPurchase || isConfirmingSell)
+                    if (isConfirmingPurchase || isConfirmingSell || showingPurchaseSuccess || showingSellSuccess)
                     {
                         pulse = minPulseScale;
                     }
@@ -321,8 +321,9 @@ public class ShopUIManager : MonoBehaviour
                         float cornerHeight = cornerPieces[0].resolvedStyle.height;
 
                         // Determine the corner color based on state
-                        Color cornerColor = (isConfirmingPurchase || isConfirmingSell) ?
-                                            confirmingCornerColor : normalCornerColor;
+                        Color cornerColor = (isConfirmingPurchase || isConfirmingSell ||
+                                    showingPurchaseSuccess || showingSellSuccess) ?
+                                    confirmingCornerColor : normalCornerColor;
 
                         for (int i = 0; i < cornerPieces.Count; i++)
                         {
@@ -779,7 +780,7 @@ public class ShopUIManager : MonoBehaviour
                 }
 
                 if (currentGold >= 0 && item.cost > currentGold)
-                    itemCostText.style.color = Color.red;
+                    itemCostText.style.color = new Color(0.941f, 0.125f, 0.0f, 1.0f);
                 else
                     itemCostText.style.color = new Color(1, 1, 1, 1);
             }
@@ -864,7 +865,7 @@ public class ShopUIManager : MonoBehaviour
 
         string costText = $"{currentSelectedItem.cost} GP";
 
-        Color flashColor = new Color(1, 0, 0, 1); 
+        Color flashColor = new Color(0.941f, 0.125f, 0.0f, 1.0f); 
 
         Color returnColor;
         var equipmentManager = FindAnyObjectByType<EquipmentManager>();
@@ -1324,7 +1325,7 @@ public class ShopUIManager : MonoBehaviour
                             int playerGold = equipmentManager.GetPlayerGold();
 
                             if (currentSelectedItem.cost > playerGold)
-                                itemCostText.style.color = Color.red;
+                                itemCostText.style.color = new Color(0.941f, 0.125f, 0.0f, 1.0f);
                             else
                                 itemCostText.style.color = new Color(1, 1, 1, 1);
                         }
@@ -1362,7 +1363,7 @@ public class ShopUIManager : MonoBehaviour
 
                 // Only keep quantity text red if in buy mode AND this specific item is at max capacity
                 if (!isInSellMode && currentSelectedItem.ownedQuantity >= 999)
-                    ownedQuantityText.style.color = new Color(1, 0, 0, 1); 
+                    ownedQuantityText.style.color = new Color(0.941f, 0.125f, 0.0f, 1.0f); 
                 else
                     ownedQuantityText.style.color = new Color(1, 1, 1, 1); 
             }
@@ -1797,7 +1798,7 @@ public class ShopUIManager : MonoBehaviour
 
         string quantityText = $"{currentSelectedItem.ownedQuantity}";
 
-        Color flashColor = new Color(1, 0, 0, 1); 
+        Color flashColor = new Color(0.941f, 0.125f, 0.0f, 1.0f); 
         Color returnColor = new Color(0.8f, 0, 0, 1);
 
         for (int i = 0; i < 4; i++)
